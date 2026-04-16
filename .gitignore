@@ -1,0 +1,15 @@
+.env
+.venv/
+.pytest_cache/
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+
+data/uploads/
+data/cache/
+data/indices/
+
+.ipynb_checkpoints/
+.DS_Store
+Thumbs.db
