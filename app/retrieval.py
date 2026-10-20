@@ -6,7 +6,6 @@ from app.embeddings import EmbeddingService
 from app.schemas import RetrievalResult
 from app.vectorstore import FaissVectorStore
 
-
 TOKEN_RE = re.compile(r"[A-Za-z0-9]+")
 STOPWORDS = {
     "a",

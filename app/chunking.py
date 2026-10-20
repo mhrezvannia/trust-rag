@@ -45,7 +45,7 @@ def chunk_pages(
         buffer_words: list[str] = []
         current_page_start = page.page_number
 
-        def flush_buffer() -> None:
+        def flush_buffer(page: ParsedPage = page) -> None:
             nonlocal buffer_words, chunk_index, current_page_start
             if not buffer_words:
                 return
@@ -90,7 +90,10 @@ def chunk_pages(
                 buffer_words = candidate
             else:
                 flush_buffer()
-                buffer_words = paragraph_words
+                # flush_buffer() leaves the last `overlap_words` words in the buffer;
+                # carry them into the next chunk when they fit.
+                carried = buffer_words + paragraph_words
+                buffer_words = carried if len(carried) <= max_words else paragraph_words
 
         if buffer_words:
             flush_buffer()

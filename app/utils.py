@@ -2,11 +2,11 @@ from __future__ import annotations
 
 import hashlib
 import re
+from collections.abc import Iterable
 from pathlib import Path
-from typing import Iterable, TypeVar
+from typing import TypeVar
 
 from loguru import logger
-
 
 T = TypeVar("T")
 

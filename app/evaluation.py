@@ -29,6 +29,8 @@ def run_lightweight_evaluation(pdf_paths: list[Path], examples: list[EvaluationE
         max_words=settings.chunk_max_words,
         overlap_words=settings.chunk_overlap_words,
     )
+    if not chunks:
+        raise ValueError("No extractable text was found in the given PDFs; nothing to evaluate.")
     embedding_service = EmbeddingService()
     vectorstore = FaissVectorStore()
     vectorstore.build(chunks=chunks, embeddings=embedding_service.embed_chunks(chunks))

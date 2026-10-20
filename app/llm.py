@@ -6,7 +6,7 @@ from abc import ABC, abstractmethod
 from urllib import request
 from urllib.error import HTTPError, URLError
 
-from openai import OpenAI
+from openai import OpenAI, OpenAIError
 from pydantic import ValidationError
 
 from app.config import get_settings
@@ -45,7 +45,7 @@ def _parse_json_response(content: str) -> LLMAnswerDraft:
     try:
         return LLMAnswerDraft(**json.loads(cleaned))
     except (json.JSONDecodeError, ValidationError) as exc:
-        raise ValueError(f"Failed to parse model output: {content}") from exc
+        raise LLMProviderError(f"Failed to parse model output: {content}") from exc
 
 
 class OpenAIProvider(LLMProvider):
@@ -55,14 +55,17 @@ class OpenAIProvider(LLMProvider):
         self.client = OpenAI(api_key=settings.openai_api_key)
 
     def answer(self, question: str, evidence: list[RetrievalResult], prompt: str) -> LLMAnswerDraft:
-        response = self.client.responses.create(
-            model=self.model,
-            temperature=0,
-            input=[
-                {"role": "system", "content": SYSTEM_PROMPT},
-                {"role": "user", "content": prompt},
-            ],
-        )
+        try:
+            response = self.client.responses.create(
+                model=self.model,
+                temperature=0,
+                input=[
+                    {"role": "system", "content": SYSTEM_PROMPT},
+                    {"role": "user", "content": prompt},
+                ],
+            )
+        except OpenAIError as exc:
+            raise LLMProviderError(f"OpenAI request failed: {exc}") from exc
         return _parse_json_response(response.output_text.strip())
 
 
@@ -124,7 +127,7 @@ class GeminiProvider(LLMProvider):
             raise LLMProviderError(
                 f"Gemini request failed with HTTP {exc.code}.{detail}"
             ) from exc
-        except URLError as exc:
+        except (URLError, TimeoutError) as exc:
             raise LLMProviderError(
                 "Could not reach the Gemini API. Check your network access and API key."
             ) from exc
@@ -181,7 +184,7 @@ class OllamaProvider(LLMProvider):
             raise LLMProviderError(
                 f"Ollama request failed with HTTP {exc.code}.{detail}"
             ) from exc
-        except URLError as exc:
+        except (URLError, TimeoutError) as exc:
             raise LLMProviderError(
                 f"Could not reach Ollama at {self.base_url}. Is `ollama serve` running?"
             ) from exc

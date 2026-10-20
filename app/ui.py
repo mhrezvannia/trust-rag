@@ -27,7 +27,8 @@ def _persist_uploads(files) -> list[Path]:
     upload_dir.mkdir(parents=True, exist_ok=True)
     paths: list[Path] = []
     for file in files:
-        target = upload_dir / file.name
+        # Keep only the base name so a crafted upload name cannot escape upload_dir.
+        target = upload_dir / Path(file.name).name
         target.write_bytes(file.getbuffer())
         paths.append(target)
     return paths

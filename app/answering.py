@@ -5,7 +5,6 @@ from app.llm import LLMProvider
 from app.prompts import build_user_prompt
 from app.schemas import AnswerResult, RetrievalResult
 
-
 ABSTENTION_MESSAGE = (
     "I do not have sufficient evidence in the uploaded documents to answer this confidently."
 )

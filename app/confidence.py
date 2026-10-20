@@ -6,8 +6,9 @@ from statistics import mean
 from app.config import get_settings
 from app.schemas import ConfidenceResult, RetrievalResult
 
-
-NUMBER_RE = re.compile(r"\b\d+(?:\.\d+)?%?\b")
+# A trailing `\b` after `%?` can never match (`%` is not a word character), so the
+# optional percent sign used to be silently dropped. Match it explicitly instead.
+NUMBER_RE = re.compile(r"\b\d+(?:\.\d+)?(?:%|\b)")
 
 
 def _lexical_coverage(answer: str, evidence: list[RetrievalResult]) -> float:

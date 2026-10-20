@@ -9,7 +9,6 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 from app.schemas import ProviderName
 
-
 ROOT_DIR = Path(__file__).resolve().parent.parent
 DATA_DIR = ROOT_DIR / "data"
 CACHE_DIR = DATA_DIR / "cache"

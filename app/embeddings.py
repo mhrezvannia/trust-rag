@@ -5,7 +5,6 @@ from pathlib import Path
 
 import numpy as np
 from loguru import logger
-from sentence_transformers import SentenceTransformer
 
 from app.config import CACHE_DIR, get_settings
 from app.schemas import DocumentChunk
@@ -14,6 +13,10 @@ from app.utils import ensure_dir, stable_text_hash
 
 class EmbeddingService:
     def __init__(self, model_name: str | None = None) -> None:
+        # Imported lazily so that modules depending on EmbeddingService (retrieval,
+        # evaluation, UI) can be imported without loading torch.
+        from sentence_transformers import SentenceTransformer
+
         settings = get_settings()
         self.model_name = model_name or settings.embedding_model
         self.model = SentenceTransformer(self.model_name)

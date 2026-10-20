@@ -39,7 +39,7 @@ class FaissVectorStore:
 
         scores, indices = self.index.search(query_embedding.astype("float32"), top_k)
         results: list[RetrievalResult] = []
-        for score, idx in zip(scores[0], indices[0]):
+        for score, idx in zip(scores[0], indices[0], strict=True):
             if idx < 0 or idx >= len(self.chunks):
                 continue
             chunk = self.chunks[idx]

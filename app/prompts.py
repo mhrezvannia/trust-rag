@@ -5,7 +5,6 @@ import json
 from app.config import get_settings
 from app.schemas import RetrievalResult
 
-
 SYSTEM_PROMPT = """You are TrustRAG, a trustworthy question answering assistant for academic and technical documents.
 
 Rules:
