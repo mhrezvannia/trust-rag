@@ -1,15 +1,39 @@
+# Secrets (keep the template)
 .env
+.env.*
+!.env.example
+
+# Virtual environments
 .venv/
-.pytest_cache/
+venv/
+env/
+
+# Python caches and build artifacts
 __pycache__/
 *.py[cod]
 *.pyo
 *.pyd
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+build/
+dist/
+*.egg-info/
 
+# Runtime data: uploaded PDFs, embedding cache, vector indexes
 data/uploads/
 data/cache/
 data/indices/
+*.faiss
+*.index
 
+# Notebooks
 .ipynb_checkpoints/
+
+# OS / editor files
 .DS_Store
 Thumbs.db
+.idea/
+.vscode/
