@@ -1,0 +1,23 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+type: software
+title: "TrustRAG: Trustworthy Retrieval-Augmented QA for Technical Documents"
+abstract: >-
+  An end-to-end retrieval-augmented generation system for question answering
+  over PDF documents, with citation-grounded generation, heuristic confidence
+  scoring, abstention when evidence is weak, and a provider-agnostic LLM layer
+  (Gemini, OpenAI, Ollama, offline mock).
+authors:
+  - family-names: Rezvannia
+    given-names: Mohammad Hossein
+    email: mh.rezvannia@gmail.com
+version: 1.0.0
+date-released: 2026-10-20
+repository-code: "https://github.com/mhrezvannia/trust-rag"
+url: "https://github.com/mhrezvannia/trust-rag"
+keywords:
+  - retrieval-augmented generation
+  - question answering
+  - large language models
+  - abstention
+  - trustworthy AI
