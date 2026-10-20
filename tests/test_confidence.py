@@ -1,4 +1,6 @@
-from app.confidence import score_confidence
+import pytest
+
+from app.confidence import NUMBER_RE, _lexical_coverage, _numeric_grounding, score_confidence
 from app.schemas import RetrievalResult
 
 
@@ -116,3 +118,67 @@ def test_confidence_accepts_single_chunk_with_exact_numeric_results() -> None:
 
     assert result.level in {"Medium", "High"}
     assert result.should_abstain is False
+
+
+def test_no_evidence_always_abstains() -> None:
+    result = score_confidence(evidence=[], citations=[], answer="Anything.")
+
+    assert result.level == "Low"
+    assert result.numeric_score == 0.0
+    assert result.should_abstain is True
+
+
+def test_retrieval_score_below_minimum_forces_abstention_even_with_perfect_wording() -> None:
+    text = "Landmark points are selected using approximate leverage scores."
+    evidence = [
+        RetrievalResult(chunk_id="c1", document_name="p.pdf", page_start=1, page_end=1, text=text, score=0.29)
+    ]
+
+    result = score_confidence(evidence=evidence, citations=["[Source: p.pdf, p. 1, chunk c1]"], answer=text)
+
+    assert result.should_abstain is True
+    assert "Top retrieval score is weak." in result.reasons
+
+
+def test_numeric_regex_keeps_percent_signs() -> None:
+    assert NUMBER_RE.findall("about 60%, loss below 3%. and 0.0057 s, 12abc") == ["60%", "3%", "0.0057"]
+
+
+def test_numeric_grounding_distinguishes_percent_from_plain_number() -> None:
+    assert _numeric_grounding("Accuracy improved by 60%.", "Accuracy improved by 60%.") == 1.0
+    assert _numeric_grounding("Accuracy improved by 60%.", "Training took 60 seconds.") == 0.0
+    assert _numeric_grounding("No numbers here.", "60%") == 0.0
+
+
+def test_lexical_coverage_counts_long_terms_case_insensitively() -> None:
+    evidence = [
+        RetrievalResult(
+            chunk_id="c1", document_name="p.pdf", page_start=1, page_end=1, text="Kernel (approximation).", score=0.9
+        )
+    ]
+
+    # Terms of <= 3 characters are ignored; "kernel" and "approximation" match, "quality" does not.
+    assert _lexical_coverage("The KERNEL approximation quality.", evidence) == pytest.approx(2 / 3)
+    assert _lexical_coverage("a an the", evidence) == 0.0
+
+
+def test_duplicate_citations_count_once() -> None:
+    evidence = [
+        RetrievalResult(
+            chunk_id=f"c{i}",
+            document_name="p.pdf",
+            page_start=i,
+            page_end=i,
+            text="Landmark selection improves Nystrom approximation quality.",
+            score=0.62,
+        )
+        for i in range(3)
+    ]
+    answer = "Landmark selection improves Nystrom approximation quality."
+    one = "[Source: p.pdf, p. 0, chunk c0]"
+
+    duplicated = score_confidence(evidence=evidence, citations=[one, one, one], answer=answer)
+    single = score_confidence(evidence=evidence, citations=[one], answer=answer)
+
+    assert duplicated.numeric_score == single.numeric_score
+    assert "Citation coverage is limited." in duplicated.reasons
