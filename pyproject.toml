@@ -1,0 +1,42 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "trust-rag"
+version = "1.0.0"
+description = "Trustworthy retrieval-augmented question answering over technical PDF documents, with citation-grounded generation, confidence scoring and abstention."
+readme = "README.md"
+requires-python = ">=3.10"
+authors = [{ name = "Mohammad Hossein Rezvannia", email = "mh.rezvannia@gmail.com" }]
+keywords = ["retrieval-augmented generation", "question answering", "LLM", "abstention", "trustworthy AI"]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+]
+dynamic = ["dependencies"]
+
+[project.urls]
+Repository = "https://github.com/mhrezvannia/trust-rag"
+
+[tool.setuptools]
+packages = ["app"]
+
+[tool.setuptools.dynamic]
+dependencies = { file = ["requirements.txt"] }
+
+[tool.ruff]
+line-length = 120
+target-version = "py310"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "UP"]
+# Prompt strings and UI copy are intentionally kept on single long lines.
+ignore = ["E501"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-ra"
+pythonpath = ["."]
